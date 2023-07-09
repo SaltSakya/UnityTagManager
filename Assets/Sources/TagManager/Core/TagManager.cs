@@ -19,21 +19,20 @@ namespace SaltSakya.TagManager
             typeof(T).Attributes.GetTypeCode();
             var a = typeof(T).GetCustomAttribute<TagManagerAttribute>();
             Debug.Log(a);
-            return false;
             switch (aEnum.GetTypeCode())
             {
                 case TypeCode.Byte:
                     return (byte)(object)aEnum == (byte)(object)bEnum; 
-                    break;
+                    //break;
                 case TypeCode.UInt16:
                     return (ushort)(object)aEnum == (ushort)(object)bEnum;
-                    break;
+                    //break;
                 case TypeCode.UInt32:
                     return (uint)(object)aEnum == (uint)(object)bEnum;
-                    break;
+                    //break;
                 case TypeCode.UInt64:
                     return (ulong)(object)aEnum == (ulong)(object)bEnum;
-                    break;
+                    //break;
                 default:
                     Debug.Log("Error");
                     break;
