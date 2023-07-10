@@ -34,17 +34,11 @@ namespace SaltSakya.TagManager
                         type = "ulong";
                         break;
                 }
-                string fileContent = DictToEnum(TagName, type, ref encodedEnums);
+                string fileContent = DictEncoder(TagName, type, in encodedEnums);
                 
-                FileStream stream = new FileStream($"{Application.dataPath}/{SavePath}/{TagName}.cs", FileMode.OpenOrCreate);
-                StreamWriter writer = new StreamWriter(stream, System.Text.Encoding.UTF8);
-                writer.Write(fileContent);
-                writer.Flush();
-                writer.Close();
-                stream.Close();
-                
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
+                SaveEnumFile(
+                    $"{Application.dataPath}/{SavePath}/{TagName}.cs",
+                    fileContent);
             }
         }
         
@@ -191,10 +185,7 @@ namespace SaltSakya.TagManager
             return true;
         }
 
-
-        #endregion
-        
-        private string DictToEnum(string name, string type, ref Dictionary<string, ulong> dictionary)
+        private string DictEncoder(string name, string type, in Dictionary<string, ulong> dictionary)
         {
             string content = "";
             foreach (var (e, i) in dictionary)
@@ -207,11 +198,34 @@ namespace SaltSakya.TagManager
 
         private string WrapFile(string name, string type, string content)
         {
-            return $"enum {name}: {type}\n{{{content}\n}};";
-        }
-        
-        #region Tool functions
+            return $@"// Don't edit this file directly
+// 不要直接修改此文件
 
+using SaltSakya.TagManager;
+
+[TagManager(typeof({type}))]
+enum {name}: {type}
+{{{content}
+}};";
+        }
+
+        private void SaveEnumFile(string path, string content)
+        {
+            using (FileStream stream = new FileStream(path, FileMode.Create))
+            {
+                using (var writer = new StreamWriter(stream, System.Text.Encoding.UTF8))
+                {
+                    writer.Write(content);
+                    writer.Flush();
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+        #endregion
+
+        #region Tool functions
         private void CountOfMask(ETagGeneratorDataType type, out int totalBitCount, out int dataBitCount)
         {
             switch (type)
